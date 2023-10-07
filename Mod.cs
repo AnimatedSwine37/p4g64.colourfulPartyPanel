@@ -53,6 +53,8 @@ public unsafe class Mod : ModBase // <= Do not Remove.
     private IHook<RenderPartyPanelDelegate> _renderPartyPanelHook;
     private IHook<BtlRenderPartyPanelDelegate> _btlRenderPartyPanelHook;
     private IAsmHook _btlPartyPanelHook;
+    private IAsmHook _btlCommandCircleHook;
+    private IAsmHook _btlCommandCircleFadeHook;
 
     //private Dictionary<PartyMember, ColourStruct> _fgColours = new();
     //private Dictionary<PartyMember, ColourStruct> _bgColours = new();
@@ -60,6 +62,7 @@ public unsafe class Mod : ModBase // <= Do not Remove.
     private ColourStruct* _bgColours;
 
     private Memory _memory;
+    private nuint _partyInfo;
 
     public Mod(ModContext context)
     {
@@ -103,6 +106,80 @@ public unsafe class Mod : ModBase // <= Do not Remove.
             };
             _btlPartyPanelHook = _hooks.CreateAsmHook(function, address, AsmHookBehaviour.DoNotExecuteOriginal).Activate();
         });
+
+        Utils.SigScan("48 8B 05 ?? ?? ?? ?? 48 0F BF 54 ?? ?? B8 01 00 00 00", "GetPartyMemberId", address =>
+        {
+            _partyInfo = Utils.GetGlobalAddress(address + 3);
+        });
+
+        nint infoPtr = 0;
+        Utils.SigScan("E8 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 8B 47 ?? 48 8D 8F ?? ?? ?? ??", "BtlCommandCircle", address =>
+        {
+            infoPtr = _hooks.Utilities.WritePointer((nint)_partyInfo);
+            string[] function = new string[]
+            {
+                "use64",
+                "push rbx",
+                $"mov rbx, [qword {infoPtr}]",
+                "mov rbx, [rbx]",
+                // Slot 0 is protag
+                "cmp r9, 0",
+                "je protag",
+                // Get party member id
+                "movsx rbx, word [rbx + r9*2 + 2]",
+                "jmp normal",
+                "label protag",
+                "mov rbx, 1",
+                "label normal",
+                // Get bg colour
+                $"mov ebx, [qword {(nuint)_bgColours} + rbx*4 - 1]",
+                // Set colour (it's spread over four places for some reason)
+                "mov byte [rsp+0x28], bl", // R
+                "shr rbx, 8",
+                "mov byte [rsp+0x30], bl", // G
+                "shr rbx, 8",
+                "mov byte [rsp+0x38], bl", // B
+                "shr rbx, 8",
+                "mov byte [rsp+0x40], bl", // A
+                "pop rbx"
+            };
+            _btlCommandCircleHook = _hooks.CreateAsmHook(function, address, AsmHookBehaviour.ExecuteFirst).Activate();
+        });
+
+        Utils.SigScan("E8 ?? ?? ?? ?? 33 C9 E8 ?? ?? ?? ?? 41 0F 28 D1", "BtlCommandCircleFade", address =>
+        {
+            if (infoPtr == 0) return;
+            string[] function = new string[]
+            {
+                "use64",
+                "push rbx",
+                $"mov rbx, [qword {infoPtr}]",
+                "mov rbx, [rbx]",
+                // Slot 0 is protag
+                "cmp r15, 0",
+                "je protag",
+                // Get party member id
+                "movsx rbx, word [rbx + r15*2 + 2]",
+                "jmp normal",
+                "label protag",
+                "mov rbx, 1",
+                "label normal",
+                // Get bg colour
+                $"mov ebx, [qword {(nuint)_bgColours} + rbx*4 - 1]",
+                // Set colour (it's spread over four places for some reason)
+                "mov byte [rsp+0x28], bl", // R
+                "shr rbx, 8",
+                "mov byte [rsp+0x30], bl", // G
+                "shr rbx, 8",
+                "mov byte [rsp+0x38], bl", // B
+                "shr rbx, 8",
+                "mov byte [rsp+0x40], bl", // A
+                "pop rbx"
+            };
+
+            _btlCommandCircleFadeHook = _hooks.CreateAsmHook(function, address, AsmHookBehaviour.ExecuteFirst).Activate();
+        });
+
     }
 
     private void SetupColours()
