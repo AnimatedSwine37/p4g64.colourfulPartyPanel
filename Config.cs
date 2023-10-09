@@ -5,6 +5,11 @@ using static p4g64.colourfulPartyPanel.Colour;
 namespace p4g64.colourfulPartyPanel.Configuration;
 public class Config : Configurable<Config>
 {
+    [DisplayName("Cycle Colours")]
+    [Description("Makes the colours cycle, very cool gamer moment.")]
+    [DefaultValue(false)]
+    public bool CycleColours { get; set; } = false;
+
     [DisplayName("Protagonist Foreground Colour")]
     [Description("The colour of the foreground of the Protagonist's party panel")]
     public Colour ProtagonistFgColour { get; set; } = Colour.ProtagonistFgColour;

@@ -56,10 +56,9 @@ public unsafe class Mod : ModBase // <= Do not Remove.
     private IAsmHook _btlCommandCircleHook;
     private IAsmHook _btlCommandCircleFadeHook;
 
-    //private Dictionary<PartyMember, ColourStruct> _fgColours = new();
-    //private Dictionary<PartyMember, ColourStruct> _bgColours = new();
     private ColourStruct* _fgColours;
     private ColourStruct* _bgColours;
+    private int _colourIndex = 0;
 
     private Memory _memory;
     private nuint _partyInfo;
@@ -204,9 +203,17 @@ public unsafe class Mod : ModBase // <= Do not Remove.
 
     private void RenderPartyPanel(nuint param_1, PartyPanelInfo* info)
     {
+        if (++_colourIndex >= 360)
+            _colourIndex = 0;
+
         for (int i = 0; i < info->NumPartyMembers; i++)
         {
             var member = &info->MemberInfo + i;
+            if (_configuration.CycleColours)
+            {
+                CycleColour(&_bgColours[(int)member->PartyMember]);
+                CycleColour(&_fgColours[(int)member->PartyMember]);
+            }
             SetColour(&member->Sprites->ShadowSprite, _bgColours[(int)member->PartyMember]);
             SetColour(&member->Sprites->OutlineSprite, _fgColours[(int)member->PartyMember]);
         }
@@ -219,6 +226,14 @@ public unsafe class Mod : ModBase // <= Do not Remove.
         {
             (&sprite->RenderPrimitives + i)->Colour = colour;
         }
+    }
+
+
+    private void CycleColour(ColourStruct* colour)
+    {
+        colour->R = ColourCycle[(_colourIndex + 120) % 360];
+        colour->G = ColourCycle[_colourIndex];
+        colour->B = ColourCycle[(_colourIndex + 240) % 360];
     }
 
     [Function(CallingConventions.Microsoft)]
