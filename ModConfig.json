@@ -1,9 +1,9 @@
 {
   "ModId": "p4g64.colourfulPartyPanel",
-  "ModName": "Colourful Party Panel",
+  "ModName": "Colorful Party Panel",
   "ModAuthor": "AnimatedSwine37",
   "ModVersion": "1.0.0",
-  "ModDescription": "Gives each party member a unique colour in the party panel",
+  "ModDescription": "Gives each party member a unique color in the party panel",
   "ModDll": "p4g64.colourfulPartyPanel.dll",
   "ModIcon": "Preview.png",
   "ModR2RManagedDll32": "x86/p4g64.colourfulPartyPanel.dll",
