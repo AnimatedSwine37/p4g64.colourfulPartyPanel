@@ -99,8 +99,8 @@ public unsafe class Mod : ModBase // <= Do not Remove.
                 "xor rbx, rbx", // clear rbx
                 $"mov bx, [rdx + 2]", // get party member id
                 "shl rbx, 2", // Multiply id by 4 (length of a colour)
-                $"mov ecx, [qword {(nuint)_bgColours} + rbx]", // set bg colour
-                $"mov eax, [qword {(nuint)_fgColours} + rbx]", // set fg colour
+                $"mov ecx, [qword {(nuint)_fgColours} + rbx]", // set fg colour
+                $"mov eax, [qword {(nuint)_bgColours} + rbx]", // set bg colour
                 "pop rbx"
             };
             _btlPartyPanelHook = _hooks.CreateAsmHook(function, address, AsmHookBehaviour.DoNotExecuteOriginal).Activate();
