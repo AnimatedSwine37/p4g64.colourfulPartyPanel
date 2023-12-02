@@ -131,15 +131,15 @@ public unsafe class Mod : ModBase // <= Do not Remove.
                 "mov rbx, 1",
                 "label normal",
                 // Get bg colour
-                $"mov ebx, [qword {(nuint)_bgColours} + rbx*4 - 1]",
+                $"mov ebx, [qword {(nuint)_bgColours} + rbx*4]",
                 // Set colour (it's spread over four places for some reason)
-                "mov byte [rsp+0x28], bl", // R
+                "mov byte [rsp+0x30], bl", // R
                 "shr rbx, 8",
-                "mov byte [rsp+0x30], bl", // G
+                "mov byte [rsp+0x38], bl", // G
                 "shr rbx, 8",
-                "mov byte [rsp+0x38], bl", // B
+                "mov byte [rsp+0x40], bl", // B
                 "shr rbx, 8",
-                "mov byte [rsp+0x40], bl", // A
+                "mov byte [rsp+0x48], bl", // A
                 "pop rbx"
             };
             _btlCommandCircleHook = _hooks.CreateAsmHook(function, address, AsmHookBehaviour.ExecuteFirst).Activate();
@@ -164,15 +164,15 @@ public unsafe class Mod : ModBase // <= Do not Remove.
                 "mov rbx, 1",
                 "label normal",
                 // Get bg colour
-                $"mov ebx, [qword {(nuint)_bgColours} + rbx*4 - 1]",
+                $"mov ebx, [qword {(nuint)_bgColours} + rbx*4]",
                 // Set colour (it's spread over four places for some reason)
-                "mov byte [rsp+0x28], bl", // R
+                "mov byte [rsp+0x30], bl", // R
                 "shr rbx, 8",
-                "mov byte [rsp+0x30], bl", // G
+                "mov byte [rsp+0x38], bl", // G
                 "shr rbx, 8",
-                "mov byte [rsp+0x38], bl", // B
+                "mov byte [rsp+0x40], bl", // B
                 "shr rbx, 8",
-                "mov byte [rsp+0x40], bl", // A
+                "mov byte [rsp+0x48], bl", // A
                 "pop rbx"
             };
 
